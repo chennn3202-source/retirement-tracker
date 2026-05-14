@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>退休計畫</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #2563EB;
+  --blue-light: #EFF6FF;
+  --blue-mid: #BFDBFE;
+  --yellow: #FBBF24;
+  --yellow-light: #FFFBEB;
+  --black: #111827;
+  --gray: #6B7280;
+  --gray-light: #F3F4F6;
+  --white: #FFFFFF;
+  --green: #16A34A;
+  --red: #DC2626;
+  --amber: #D97706;
+  --border: #E5E7EB;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  background: var(--gray-light);
+  font-family: 'Noto Sans TC', sans-serif;
+  color: var(--black);
+  min-height: 100vh;
+  padding-bottom: 70px;
+}
+
+/* TABS */
+.tabs {
+  position: fixed; bottom:0; left:0; right:0;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tab { flex:1; padding:10px 4px 8px; text-align:center; cursor:pointer; }
+.tab-label { font-size:11px; font-weight:700; color:var(--gray); margin-top:3px; }
+.tab.active .tab-label { color:var(--blue); }
+.tab-bar {
+  width:24px; height:3px; border-radius:99px;
+  background: transparent; margin:0 auto 0;
+  transition: background 0.2s;
+}
+.tab.active .tab-bar { background: var(--blue); }
+
+/* PAGES */
+.page { display:none; }
+.page.active { display:block; animation: fadeUp 0.25s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* HERO HEADER */
+.hero {
+  background: var(--blue);
+  padding: 52px 20px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  right: -40px; top: -40px;
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+.hero-eyebrow {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--blue-mid); margin-bottom: 6px;
+}
+.hero-title {
+  font-size: 28px; font-weight: 900;
+  color: var(--white); line-height: 1.2;
+  margin-bottom: 4px;
+}
+.hero-sub { font-size: 13px; color: rgba(255,255,255,0.6); }
+
+/* YELLOW TOTAL BAND */
+.total-band {
+  background: var(--yellow);
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.tb-label { font-size: 11px; font-weight: 700; color: rgba(0,0,0,0.45); letter-spacing: 1px; text-transform: uppercase; }
+.tb-val { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; color: var(--black); margin-top: 2px; }
+.tb-sub { font-size: 11px; color: rgba(0,0,0,0.4); margin-top: 2px; }
+.tb-right { text-align: right; }
+.tb-date { font-size: 11px; font-weight: 700; color: rgba(0,0,0,0.4); }
+
+/* CONTENT */
+.content { padding: 12px 0; }
+
+/* SECTION LABEL */
+.sec { margin: 16px 16px 8px; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); }
+
+/* CARD */
+.card {
+  margin: 0 16px 10px;
+  background: var(--white);
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid var(--border);
+}
+
+/* 2 COL */
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 16px 10px; }
+.mini { background:var(--white); border-radius:14px; padding:14px; border:1px solid var(--border); }
+.mini-label { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--gray); margin-bottom:6px; }
+.mini-val { font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700; }
+.mini-sub { font-size:10px; color:var(--gray); margin-top:3px; }
+.mini.blue { background:var(--blue-light); border-color:var(--blue-mid); }
+.mini.blue .mini-val { color:var(--blue); }
+.mini.yellow { background:var(--yellow-light); border-color:#FDE68A; }
+.mini.yellow .mini-val { color:#92400E; }
+
+/* PROGRESS */
+.prog-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+.prog-title { font-size:14px; font-weight:700; }
+.prog-pct { font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:700; color:var(--blue); line-height:1; }
+.prog-track { height:12px; background:var(--gray-light); border-radius:99px; overflow:hidden; margin-bottom:14px; }
+.prog-fill { height:100%; background:var(--blue); border-radius:99px; transition:width 1.2s cubic-bezier(.34,1.2,.64,1); }
+.prog-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+.ps { background:var(--gray-light); border-radius:10px; padding:10px 6px; text-align:center; }
+.ps-v { font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; }
+.ps-l { font-size:9px; color:var(--gray); margin-top:3px; font-weight:700; letter-spacing:0.5px; }
+
+/* STATUS */
+.status { margin:0 16px 10px; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; }
+.status.ok  { background:#F0FDF4; border:1px solid #BBF7D0; }
+.status.warn { background:#FFFBEB; border:1px solid #FDE68A; }
+.status.bad { background:#FEF2F2; border:1px solid #FECACA; }
+.st-dot { width:8px; height:8px; border-radius:99px; flex-shrink:0; margin-top:2px; }
+.ok .st-dot  { background:var(--green); }
+.warn .st-dot { background:var(--amber); }
+.bad .st-dot { background:var(--red); }
+.st-title { font-size:13px; font-weight:700; margin-bottom:3px; }
+.st-desc { font-size:12px; color:var(--gray); line-height:1.5; }
+
+/* TIMELINE */
+.tl-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.tl-title { font-size:14px; font-weight:700; }
+.tl-badge { background:var(--blue-light); color:var(--blue); font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; padding:4px 10px; border-radius:99px; }
+.tl-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.tl-yr { font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--gray); width:38px; }
+.tl-bg { flex:1; height:8px; background:var(--gray-light); border-radius:99px; overflow:hidden; }
+.tl-f { height:100%; border-radius:99px; }
+.tl-v { font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; width:46px; text-align:right; }
+.tl-foot { display:flex; justify-content:space-between; padding-top:12px; border-top:1px dashed var(--border); margin-top:2px; }
+.tl-foot span:first-child { font-size:12px; font-weight:700; color:var(--amber); }
+.tl-foot span:last-child { font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; color:var(--amber); }
+
+/* STOCKS */
+.sl { margin:0 16px; }
+.srow {
+  background:var(--white); border:1px solid var(--border);
+  border-radius:12px; padding:12px 14px;
+  margin-bottom:8px; display:flex;
+  align-items:center; gap:10px;
+  position:relative;
+}
+.sbadge {
+  width:40px; height:40px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:8px; font-weight:700;
+  text-align:center; line-height:1.3;
+  word-break:break-all; flex-shrink:0;
+}
+.sbadge.tw { background:var(--blue-light); color:var(--blue); }
+.sbadge.us { background:var(--yellow-light); color:#92400E; }
+.sinfo { flex:1; min-width:0; }
+.sname { font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sdet { font-size:11px; color:var(--gray); font-family:'JetBrains Mono',monospace; margin-top:2px; font-weight:500; }
+.sright { text-align:right; flex-shrink:0; }
+.sval { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; }
+.sch { font-size:11px; font-family:'JetBrains Mono',monospace; font-weight:600; margin-top:2px; }
+.sch.up { color:var(--green); } .sch.dn { color:var(--red); } .sch.fl { color:var(--gray); }
+.sdel { position:absolute; top:8px; right:10px; background:none; border:none; color:#D1D5DB; font-size:14px; cursor:pointer; font-weight:700; }
+.sdel:active { color:var(--red); }
+
+/* REFRESH BTN */
+.act-bar { margin:0 16px 10px; }
+.act-btn {
+  width:100%; background:var(--blue); color:var(--white);
+  border:none; border-radius:10px;
+  font-size:14px; font-weight:700;
+  font-family:'Noto Sans TC',sans-serif;
+  padding:12px; cursor:pointer;
+}
+.act-btn:active { opacity:0.85; }
+
+/* ADD FORM */
+.af { margin:0 16px 10px; background:var(--white); border-radius:14px; padding:16px; border:1px solid var(--border); }
+.af-title { font-size:14px; font-weight:700; color:var(--blue); margin-bottom:12px; }
+.fr { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+.fi {
+  background:var(--gray-light); border:1px solid var(--border);
+  border-radius:8px; color:var(--black);
+  font-family:'JetBrains Mono',monospace; font-size:13px;
+  font-weight:500; padding:10px 12px;
+  width:100%; outline:none; -webkit-appearance:none;
+}
+.fi:focus { border-color:var(--blue); background:var(--blue-light); }
+.fi::placeholder { color:#9CA3AF; }
+.fs {
+  background:var(--gray-light); border:1px solid var(--border);
+  border-radius:8px; color:var(--black);
+  font-size:13px; font-weight:700;
+  padding:10px 12px; width:100%;
+  outline:none; -webkit-appearance:none;
+}
+.fadd {
+  width:100%; background:var(--yellow);
+  color:var(--black); border:none;
+  border-radius:8px; font-family:'Noto Sans TC',sans-serif;
+  font-size:14px; font-weight:700; padding:12px; cursor:pointer; margin-top:4px;
+}
+.fadd:active { opacity:0.85; }
+
+/* SETTINGS */
+.sc { margin:0 16px 10px; background:var(--white); border-radius:14px; padding:16px; border:1px solid var(--border); }
+.sc-title { font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--gray); margin-bottom:14px; }
+.sr { margin-bottom:12px; }
+.sl2 { font-size:11px; font-weight:700; color:var(--gray); margin-bottom:5px; }
+.si {
+  width:100%; background:var(--gray-light);
+  border:1px solid var(--border); border-radius:8px;
+  color:var(--black); font-family:'JetBrains Mono',monospace;
+  font-size:15px; font-weight:700; padding:10px 12px;
+  outline:none; -webkit-appearance:none;
+}
+.si:focus { border-color:var(--blue); background:var(--blue-light); }
+.sh2 { font-size:10px; color:#9CA3AF; margin-top:3px; }
+.ssave {
+  display:block; width:calc(100% - 32px); margin:0 16px 10px;
+  background:var(--blue); color:var(--white); border:none;
+  border-radius:12px; font-family:'Noto Sans TC',sans-serif;
+  font-size:15px; font-weight:700; padding:14px; cursor:pointer; text-align:center;
+}
+.ssave:active { opacity:0.85; }
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:78px; left:50%;
+  transform:translateX(-50%) translateY(8px);
+  background:var(--black); color:var(--white);
+  padding:8px 20px; border-radius:99px;
+  font-size:12px; font-weight:700;
+  opacity:0; transition:all 0.25s; z-index:200;
+  white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+@keyframes ld { 0%,100%{opacity:0.3} 50%{opacity:1} }
+.ld { animation:ld 1s infinite; }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-eyebrow">退休計畫追蹤</div>
+    <div class="hero-title">距離自由<br>還有多遠？</div>
+    <div class="hero-sub">每個月都在靠近目標</div>
+  </div>
+
+  <div class="total-band">
+    <div>
+      <div class="tb-label">投資總市值</div>
+      <div class="tb-val" id="h-total">新增持股後顯示</div>
+      <div class="tb-sub" id="h-total-sub">台股 + 美股換算台幣</div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-date" id="h-date">—</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="grid2">
+      <div class="mini blue">
+        <div class="mini-label">台股</div>
+        <div class="mini-val" id="h-tw">—</div>
+        <div class="mini-sub">台幣</div>
+      </div>
+      <div class="mini yellow">
+        <div class="mini-label">美股換算</div>
+        <div class="mini-val" id="h-us">—</div>
+        <div class="mini-sub">台幣</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="prog-header">
+        <div class="prog-title">退休目標進度</div>
+        <div class="prog-pct" id="h-pct">0%</div>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="h-bar" style="width:0%"></div></div>
+      <div class="prog-stats">
+        <div class="ps"><div class="ps-v" style="color:var(--blue)" id="h-now">—</div><div class="ps-l">目前</div></div>
+        <div class="ps"><div class="ps-v" style="color:var(--gray)" id="h-gap">—</div><div class="ps-l">還差</div></div>
+        <div class="ps"><div class="ps-v" id="h-target">—</div><div class="ps-l">目標</div></div>
+        <div class="ps"><div class="ps-v" style="color:var(--amber)" id="h-yr">—</div><div class="ps-l">倒數</div></div>
+      </div>
+    </div>
+
+    <div class="status warn" id="h-status">
+      <div class="st-dot" id="h-si"></div>
+      <div>
+        <div class="st-title" id="h-st">計算中</div>
+        <div class="st-desc" id="h-sd">新增持股後自動計算</div>
+      </div>
+    </div>
+
+    <div class="sec">成長預測</div>
+    <div class="card">
+      <div class="tl-header">
+        <div class="tl-title">複利試算</div>
+        <div class="tl-badge" id="h-rate-badge">年化 7%</div>
+      </div>
+      <div id="tl-rows"></div>
+      <div class="tl-foot">
+        <span>退休目標</span>
+        <span id="tl-target">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STOCKS -->
+<div class="page" id="page-stocks">
+  <div class="hero">
+    <div class="hero-eyebrow">持股管理</div>
+    <div class="hero-title">我的投資組合</div>
+    <div class="hero-sub" id="upd-time">尚未更新報價</div>
+  </div>
+
+  <div class="content" style="padding-top:16px">
+    <div class="act-bar">
+      <button class="act-btn" onclick="refreshAll()">更新即時報價</button>
+    </div>
+
+    <div class="sec">持股清單</div>
+    <div class="sl" id="stock-list"></div>
+
+    <div class="sec">新增持股</div>
+    <div class="af">
+      <div class="af-title">新增一筆</div>
+      <div class="fr">
+        <select class="fs" id="add-mkt"><option value="tw">台股</option><option value="us">美股</option></select>
+        <input class="fi" id="add-sym" placeholder="代號" type="text">
+      </div>
+      <div style="margin-bottom:8px"><input class="fi" id="add-name" placeholder="名稱（如 富邦台50）" type="text"></div>
+      <div class="fr">
+        <input class="fi" id="add-sh" placeholder="股數" type="number" inputmode="decimal">
+        <input class="fi" id="add-cost" placeholder="成本價（選填）" type="number" inputmode="decimal">
+      </div>
+      <button class="fadd" onclick="addStock()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+  <div class="hero">
+    <div class="hero-eyebrow">設定</div>
+    <div class="hero-title">調整計畫</div>
+    <div class="hero-sub">修改後按儲存立即重算</div>
+  </div>
+
+  <div class="content" style="padding-top:16px">
+    <div class="sc">
+      <div class="sc-title">退休目標</div>
+      <div class="sr"><div class="sl2">退休後每月缺口（台幣）</div><input class="si" id="s-gap" value="20000" type="number" inputmode="numeric"><div class="sh2">目標月收入 - 勞保勞退預估領額</div></div>
+      <div class="sr"><div class="sl2">退休後預計活幾年</div><input class="si" id="s-ryr" value="25" type="number" inputmode="numeric"></div>
+      <div class="sr"><div class="sl2">距離退休（年）</div><input class="si" id="s-yr" value="15" type="number" inputmode="numeric"></div>
+    </div>
+    <div class="sc">
+      <div class="sc-title">投資參數</div>
+      <div class="sr"><div class="sl2">每月定期投入（台幣）</div><input class="si" id="s-mo" value="10000" type="number" inputmode="numeric"></div>
+      <div class="sr"><div class="sl2">預期年化報酬率</div>
+        <select class="si" id="s-rate">
+          <option value="0.05">保守 5%</option>
+          <option value="0.07" selected>中性 7%</option>
+          <option value="0.09">樂觀 9%</option>
+          <option value="0.11">積極 11%</option>
+        </select>
+      </div>
+      <div class="sr"><div class="sl2">美元匯率（USD/TWD）</div><input class="si" id="s-fx" value="32" type="number" inputmode="decimal"></div>
+    </div>
+    <button class="ssave" onclick="saveSettings()">儲存並重新計算</button>
+    <div class="sc">
+      <div class="sc-title">關於報價</div>
+      <p style="font-size:12px;color:var(--gray);line-height:1.8">台股：台灣證交所公開 API<br>美股：Yahoo Finance 公開資料<br>為延遲報價，僅供參考。<br>資料僅存在本機，不上傳任何伺服器。</p>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="go('home')" id="tab-home">
+    <div class="tab-bar"></div>
+    <div class="tab-label">總覽</div>
+  </div>
+  <div class="tab" onclick="go('stocks')" id="tab-stocks">
+    <div class="tab-bar"></div>
+    <div class="tab-label">持股</div>
+  </div>
+  <div class="tab" onclick="go('settings')" id="tab-settings">
+    <div class="tab-bar"></div>
+    <div class="tab-label">設定</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let cfg={gap:20000,ryr:25,yr:15,mo:10000,rate:0.07,fx:32};
+let port=[];
+function save(){localStorage.setItem('rp5_c',JSON.stringify(cfg));localStorage.setItem('rp5_p',JSON.stringify(port));}
+function load(){try{const c=localStorage.getItem('rp5_c');if(c)cfg={...cfg,...JSON.parse(c)};}catch(e){}try{const p=localStorage.getItem('rp5_p');if(p)port=JSON.parse(p);}catch(e){}}
+function go(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+n).classList.add('active');document.getElementById('tab-'+n).classList.add('active');}
+function fmt(n){if(n>=10000000)return(n/10000000).toFixed(1)+'千萬';if(n>=1000000)return(n/10000).toFixed(0)+'萬';if(n>=10000)return(n/10000).toFixed(1)+'萬';return Math.round(n).toLocaleString();}
+async function fetchTW(s){try{const r=await fetch(`https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_${s}.tw&json=1&delay=0`);const d=await r.json();if(d.msgArray?.length){const i=d.msgArray[0];const p=parseFloat(i.z)||parseFloat(i.y)||0;const v=parseFloat(i.y)||0;return{price:p,change:p-v,changeP:v>0?(p-v)/v*100:0};}}catch(e){}return null;}
+async function fetchUS(s){try{const r=await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${s}?interval=1d&range=2d`);const d=await r.json();const res=d.chart?.result?.[0];if(res){const p=res.meta.regularMarketPrice;const v=res.meta.previousClose||res.meta.chartPreviousClose;return{price:p,change:p-v,changeP:v>0?(p-v)/v*100:0};}}catch(e){}return null;}
+async function refreshAll(){toast('更新報價中...');await Promise.all(port.map(async s=>{s.loading=true;renderStocks();const r=s.market==='tw'?await fetchTW(s.symbol):await fetchUS(s.symbol);if(r){s.price=r.price;s.change=r.change;s.changeP=r.changeP;s.value=s.shares*r.price*(s.market==='us'?cfg.fx:1);}s.loading=false;}));save();renderStocks();dashboard();const n=new Date();document.getElementById('upd-time').textContent=`最後更新 ${n.getHours().toString().padStart(2,'0')}:${n.getMinutes().toString().padStart(2,'0')}`;toast('報價已更新');}
+function addStock(){const market=document.getElementById('add-mkt').value;const symbol=document.getElementById('add-sym').value.trim().toUpperCase();const name=document.getElementById('add-name').value.trim();const shares=parseFloat(document.getElementById('add-sh').value);const cost=parseFloat(document.getElementById('add-cost').value)||0;if(!symbol||!name||!shares||shares<=0){toast('代號、名稱、股數都要填');return;}const s={id:Date.now(),market,symbol,name,shares,cost,price:0,change:0,changeP:0,value:0,loading:true};port.push(s);['add-sym','add-name','add-sh','add-cost'].forEach(id=>document.getElementById(id).value='');save();renderStocks();toast('新增中，抓取報價...');(market==='tw'?fetchTW(symbol):fetchUS(symbol)).then(r=>{if(r){s.price=r.price;s.change=r.change;s.changeP=r.changeP;s.value=s.shares*r.price*(market==='us'?cfg.fx:1);}s.loading=false;save();renderStocks();dashboard();});}
+function del(id){port=port.filter(s=>s.id!==id);save();renderStocks();dashboard();toast('已刪除');}
+function renderStocks(){const el=document.getElementById('stock-list');if(!port.length){el.innerHTML='<div style="text-align:center;color:#9CA3AF;font-size:13px;font-weight:700;padding:20px;background:white;border-radius:12px;border:1px solid #E5E7EB;margin-bottom:8px">還沒有持股，在下方新增</div>';return;}el.innerHTML=port.map(s=>{const px=s.loading?'<span class="ld">...</span>':s.price>0?`${s.market==='us'?'$':'NT$'}${s.price.toFixed(2)}`:'—';const val=s.loading||!s.value?'—':'$'+Math.round(s.value).toLocaleString();const cc=s.changeP>0?'up':s.changeP<0?'dn':'fl';const ch=s.loading||!s.price?'':s.changeP>=0?`+${s.changeP.toFixed(2)}%`:`${s.changeP.toFixed(2)}%`;const sh=s.shares%1===0?s.shares.toLocaleString()+'股':s.shares+'股';return `<div class="srow"><button class="sdel" onclick="del(${s.id})">X</button><div class="sbadge ${s.market}">${s.symbol}</div><div class="sinfo"><div class="sname">${s.name}</div><div class="sdet">${sh} x ${px}</div></div><div class="sright"><div class="sval">${val}</div><div class="sch ${cc}">${ch}</div></div></div>`;}).join('');}
+function dashboard(){const tw=port.filter(s=>s.market==='tw').reduce((a,s)=>a+(s.value||0),0);const us=port.filter(s=>s.market==='us').reduce((a,s)=>a+(s.value||0),0);const total=tw+us;const target=cfg.gap*12*cfg.ryr;const pct=Math.min(Math.round(total/target*100),100);const rate=cfg.rate,yr=cfg.yr,mo=cfg.mo,mr=rate/12,months=yr*12;const fv=total*Math.pow(1+rate,yr)+mo*((Math.pow(1+mr,months)-1)/mr);
+document.getElementById('h-date').textContent=new Date().toLocaleDateString('zh-TW',{month:'long',day:'numeric'});
+document.getElementById('h-total').textContent=total>0?'NT$ '+Math.round(total).toLocaleString():'新增持股後顯示';
+document.getElementById('h-total-sub').textContent=total>0?`台股 ${fmt(tw)} + 美股 ${fmt(us)}`:'台股 + 美股換算台幣';
+document.getElementById('h-tw').textContent=tw>0?'$'+fmt(tw):'—';
+document.getElementById('h-us').textContent=us>0?'$'+fmt(us):'—';
+document.getElementById('h-pct').textContent=pct+'%';
+document.getElementById('h-bar').style.width=pct+'%';
+document.getElementById('h-now').textContent='$'+fmt(total);
+document.getElementById('h-gap').textContent='$'+fmt(Math.max(target-total,0));
+document.getElementById('h-target').textContent='$'+fmt(target);
+document.getElementById('h-yr').textContent=yr+'年';
+document.getElementById('h-rate-badge').textContent='年化 '+(rate*100)+'%';
+document.getElementById('tl-target').textContent='$'+fmt(target);
+const diff=fv-target;const sb=document.getElementById('h-status');
+if(diff>=0){sb.className='status ok';document.getElementById('h-si').className='st-dot';document.getElementById('h-st').textContent='計畫可以達標';document.getElementById('h-sd').textContent=`${yr}年後預估 ${fmt(fv)}，超出目標 ${fmt(diff)}`;}
+else if(diff>-1500000){sb.className='status warn';document.getElementById('h-si').className='st-dot';document.getElementById('h-st').textContent='還差一點點';document.getElementById('h-sd').textContent=`預估 ${fmt(fv)}，距目標差 ${fmt(-diff)}，勞退可補足`;}
+else{sb.className='status bad';document.getElementById('h-si').className='st-dot';document.getElementById('h-st').textContent='需要調整計畫';document.getElementById('h-sd').textContent=`預估 ${fmt(fv)}，距目標差 ${fmt(-diff)}`;}
+const cyrs=[3,5,10,yr].filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>a-b);
+const maxV=Math.max(fv,target)*1.08,cy=new Date().getFullYear();
+const cols=['#93C5FD','#60A5FA','#3B82F6','#2563EB'];
+document.getElementById('tl-rows').innerHTML=cyrs.map((y,i)=>{const m=y*12,v=total*Math.pow(1+rate,y)+mo*((Math.pow(1+mr,m)-1)/mr);const w=Math.min(v/maxV*100,96);const isLast=y===yr,col=isLast?(v>=target?'#16A34A':'#D97706'):cols[i]||'#BFDBFE';return `<div class="tl-row"><div class="tl-yr">${cy+y}</div><div class="tl-bg"><div class="tl-f" style="width:${w}%;background:${col}"></div></div><div class="tl-v" style="color:${col}">${fmt(v)}</div></div>`;}).join('');}
+function saveSettings(){cfg.gap=parseFloat(document.getElementById('s-gap').value)||20000;cfg.ryr=parseInt(document.getElementById('s-ryr').value)||25;cfg.yr=parseInt(document.getElementById('s-yr').value)||15;cfg.mo=parseFloat(document.getElementById('s-mo').value)||10000;cfg.rate=parseFloat(document.getElementById('s-rate').value)||0.07;cfg.fx=parseFloat(document.getElementById('s-fx').value)||32;save();dashboard();toast('已儲存');go('home');}
+function syncUI(){document.getElementById('s-gap').value=cfg.gap;document.getElementById('s-ryr').value=cfg.ryr;document.getElementById('s-yr').value=cfg.yr;document.getElementById('s-mo').value=cfg.mo;document.getElementById('s-rate').value=cfg.rate;document.getElementById('s-fx').value=cfg.fx;}
+let tt;function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2200);}
+load();syncUI();renderStocks();dashboard();
+</script>
+</body>
+</html>
